@@ -1,3 +1,10 @@
+.idea/
+/C:/
+/Users/
+/enaso/
+/AppData/
+/Local/
+/Temp/
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
