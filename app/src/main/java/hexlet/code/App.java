@@ -3,6 +3,9 @@ package hexlet.code;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.controller.UrlController;
+import hexlet.code.dto.BasePage;
+import hexlet.code.model.NamedRoutes;
 import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
@@ -14,6 +17,8 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
+import static io.javalin.rendering.template.TemplateUtil.model;
+
 
 public class App {
     public static Javalin getApp() throws SQLException {
@@ -22,7 +27,7 @@ public class App {
 
         var dataSource = new HikariDataSource(hikariConfig);
 
-        var url = App.class.getClassLoader().getResourceAsStream("urls.sql");
+        var url = App.class.getClassLoader().getResourceAsStream("schema.sql");
         var sql = new BufferedReader(new InputStreamReader(url))
                 .lines().collect(Collectors.joining("\n"));
 
@@ -38,8 +43,17 @@ public class App {
         });
 
         app.get("/", ctx -> {
-            ctx.render("index.jte");
+            String flashError = ctx.consumeSessionAttribute("flash-error");
+            BasePage page = new BasePage();
+            if (flashError != null) {
+                page.setFlashError(flashError);
+            }
+            ctx.render("index.jte", model("page", page));
         });
+
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
+        app.get(NamedRoutes.urlsPath(), UrlController::index);
+        app.get(NamedRoutes.urlPath("{id}"), UrlController::show);
 
         return app;
     }
