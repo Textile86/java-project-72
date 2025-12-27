@@ -1,7 +1,10 @@
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
+
 plugins {
-    id("java")
+    java
     id("org.sonarqube") version "7.2.2.6593"
     application
+    jacoco
 }
 
 group = "hexlet.code"
@@ -17,6 +20,7 @@ application {
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("io.javalin:javalin:6.1.3")
@@ -28,6 +32,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     implementation("org.postgresql:postgresql:42.7.1")
+    testImplementation("io.javalin:javalin-testtools:6.7.0")
 }
 
 buildscript {
@@ -41,6 +46,18 @@ buildscript {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.named<JacocoReport>("jacocoTestReport"))
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+configure<JacocoPluginExtension> {
+    toolVersion = "0.8.11"
 }
 
 sonar {

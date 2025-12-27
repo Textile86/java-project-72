@@ -64,9 +64,12 @@ public class UrlController {
                 return;
             }
 
-            String protocol = url.getProtocol();
-            String host = url.getHost();
+            String protocol = url.getProtocol().toLowerCase();
+            String host = url.getHost().toLowerCase();
             int port = url.getPort();
+            if (host.startsWith("www.")) {
+                host = host.substring(4);
+            }
 
             if (host == null) {
                 ctx.sessionAttribute("flash-error", "Некорректный URL");
