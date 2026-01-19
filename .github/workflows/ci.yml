@@ -26,3 +26,16 @@ jobs:
     - name: Build with Gradle
       working-directory: ./app
       run: ./gradlew build --no-daemon
+
+    - name: Run tests with coverage
+      working-directory: ./app
+      run: ./gradlew clean test jacocoTestReport --no-daemon
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        directory: ./app/build/reports/jacoco/
+        files: test/jacocoTestReport.xml
+        flags: unittests
+        name: code-coverage-report
+        fail_ci_if_error: false
