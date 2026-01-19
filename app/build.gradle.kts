@@ -57,6 +57,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required = true
         html.required = true
+        csv.required = false
     }
 }
 
@@ -66,7 +67,6 @@ configure<JacocoPluginExtension> {
 
 configure<CheckstyleExtension> {
     toolVersion = "10.12.4"
-    // Используйте rootDir для гарантированного доступа к файлу в корне проекта
     configFile = file("config/checkstyle/checkstyle.xml")
 }
 
