@@ -5,23 +5,20 @@ import hexlet.code.dto.UrlPage;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.NamedRoutes;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
-import io.javalin.validation.ValidationError;
-import io.javalin.validation.ValidationException;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlController {
@@ -110,31 +107,25 @@ public class UrlController {
             var term = ctx.queryParam("term");
             var header = "Сайты";
 
-            List<Url> filteredUrls;
             List<Url> allUrls = UrlRepository.getEntities();
-
-            if (term != null && !term.trim().isEmpty()) {
-                String searchTerm = term.toLowerCase().trim();
-                filteredUrls = allUrls.stream()
-                        .filter(url ->
-                                url.getName().toLowerCase().contains(searchTerm))
-                        .collect(Collectors.toList());
-            } else {
-                filteredUrls = allUrls;
+            Map<Long, UrlCheck> latestChecks = new HashMap<>();
+            for (Url url : allUrls) {
+                Optional<UrlCheck> check = UrlCheckRepository.findLatestByUrlId(url.getId());
+                check.ifPresent(c -> latestChecks.put(url.getId(), c));
             }
 
-            var page = new UrlsPage(filteredUrls, header, term);
+            var page = new UrlsPage(allUrls, latestChecks, header, term);
             String flashSuccess = ctx.consumeSessionAttribute("flash");
             String flashError = ctx.consumeSessionAttribute("flash-error");
 
             if (flashSuccess != null) {
-                page.setFlashSuccess(flashSuccess);
+                page.setFlash(flashSuccess);
             } else if (flashError != null) {
                 page.setFlashError(flashError);
             }
             ctx.render("urls/index.jte", model("page", page));
         } catch (SQLException e) {
-            var page = new UrlsPage(List.of(), "Сайты", null);
+            var page = new UrlsPage(List.of(), null, "Сайты", null);
             page.setFlashError("Не удалось загрузить сайты: " + e.getMessage());
             ctx.render("urls/index.jte", model("page", page));
         }
@@ -146,7 +137,8 @@ public class UrlController {
             Optional<Url> url = UrlRepository.find(id);
 
             if (url.isPresent()) {
-                var page = new UrlPage(url.get());
+                List<UrlCheck> checks = UrlCheckRepository.findByUrlId(id);
+                var page = new UrlPage(url.get(), checks);
                 String flashSuccess = ctx.consumeSessionAttribute("flash");
                 String flashError = ctx.consumeSessionAttribute("flash-error");
                 if (flashSuccess != null) {

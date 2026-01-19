@@ -58,9 +58,22 @@ content = @`
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td colspan="6" class="text-center">Проверок пока не было</td>
-            </tr>
+            @if(page.getChecks().isEmpty())
+                <tr>
+                    <td colspan="6" class="text-center">Проверок пока не было</td>
+                </tr>
+            @else
+                @for(var check : page.getChecks())
+                    <tr>
+                        <td>${check.getId()}</td>
+                        <td>${check.getStatusCode()}</td>
+                        <td>${check.getTitle() != null ? check.getTitle() : ""}</td>
+                        <td>${check.getH1() != null ? check.getH1() : ""}</td>
+                        <td>${check.getDescription() != null ? check.getDescription() : ""}</td>
+                        <td>${new SimpleDateFormat("dd/MM/yyyy HH:mm").format(check.getCreatedAt())}</td>
+                    </tr>
+                @endfor
+            @endif
             </tbody>
         </table>
     </div>

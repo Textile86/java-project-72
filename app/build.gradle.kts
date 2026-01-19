@@ -5,6 +5,7 @@ plugins {
     id("org.sonarqube") version "7.2.2.6593"
     application
     jacoco
+    checkstyle
 }
 
 group = "hexlet.code"
@@ -33,6 +34,9 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     implementation("org.postgresql:postgresql:42.7.1")
     testImplementation("io.javalin:javalin-testtools:6.7.0")
+    implementation("com.konghq:unirest-java:3.14.5")
+    implementation("org.jsoup:jsoup:1.17.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 buildscript {
@@ -58,6 +62,19 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 
 configure<JacocoPluginExtension> {
     toolVersion = "0.8.11"
+}
+
+configure<CheckstyleExtension> {
+    toolVersion = "10.12.4"
+    // Используйте rootDir для гарантированного доступа к файлу в корне проекта
+    configFile = file("config/checkstyle/checkstyle.xml")
+}
+
+tasks.withType<Checkstyle> {
+    reports {
+        xml.required.set(false)
+        html.required.set(true)
+    }
 }
 
 sonar {

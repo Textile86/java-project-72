@@ -5,10 +5,6 @@ public class NamedRoutes {
         return "/urls";
     }
 
-    public static String buildUrlsPath() {
-        return "/urls/build";
-    }
-
     public static String urlPath(String id) {
         return "/urls/" + id;
     }
