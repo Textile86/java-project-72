@@ -40,6 +40,8 @@ public class AppTest {
 
     @BeforeEach
     public final void setUp() throws IOException, SQLException {
+        System.setProperty("JDBC_DATABASE_URL", "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;");
+
         app = App.getApp();
         UrlRepository.deleteAll();
     }
