@@ -32,7 +32,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
-    implementation("org.postgresql:postgresql:42.7.1")
+
     testImplementation("io.javalin:javalin-testtools:6.7.0")
     implementation("com.konghq:unirest-java:3.14.5")
     implementation("org.jsoup:jsoup:1.17.2")
