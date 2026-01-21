@@ -44,6 +44,7 @@ public class AppTest {
 
         app = App.getApp();
         UrlRepository.deleteAll();
+        UrlCheckRepository.deleteAll();
     }
 
     @Test

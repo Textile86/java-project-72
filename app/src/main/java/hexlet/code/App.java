@@ -26,7 +26,11 @@ public class App {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
+        hikariConfig.setMaximumPoolSize(2);
+        hikariConfig.setMinimumIdle(1);
+
         var dataSource = new HikariDataSource(hikariConfig);
+        BaseRepository.setDataSource(dataSource);
 
         var url = App.class.getClassLoader().getResourceAsStream("schema.sql");
         var sql = new BufferedReader(new InputStreamReader(url))
