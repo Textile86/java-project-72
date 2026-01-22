@@ -22,9 +22,9 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 
 
 public class App {
-    public static Javalin getApp() throws SQLException {
+    public static Javalin getApp(String databaseUrl) throws SQLException {
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getDatabaseUrl());
+        hikariConfig.setJdbcUrl(databaseUrl);
 
         var dataSource = new HikariDataSource(hikariConfig);
 
@@ -58,6 +58,10 @@ public class App {
         app.post(NamedRoutes.urlPath("{id}") + "/checks", UrlCheckController::create);
 
         return app;
+    }
+
+    public static Javalin getApp() throws SQLException {
+        return getApp(getDatabaseUrl());
     }
 
     public static void main(String[] args) throws SQLException {
