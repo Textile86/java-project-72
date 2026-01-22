@@ -2,6 +2,9 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import okhttp3.mockwebserver.MockResponse;
@@ -19,7 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -254,5 +259,49 @@ public class AppTest {
             });
         }
 
+    }
+
+    @Test
+    public void testCreateUrlWithDuplicate() {
+        JavalinTest.test(app, (server, client) -> {
+            String url = "https://example.com";
+            client.post("/urls", "url=" + url);
+            var response = client.post("/urls", "url=" + url);
+            assertThat(response.code()).isIn(200, 302);
+        });
+    }
+
+    @Test
+    public void testUrlRepositoryFindNonExistent() throws SQLException {
+        Optional<Url> url = UrlRepository.find(999999L);
+        assertThat(url).isEmpty();
+    }
+
+    @Test
+    public void testUrlRepositoryFindByNameNonExistent() throws SQLException {
+        Optional<Url> url = UrlRepository.findByName("nonexistent.com");
+        assertThat(url).isEmpty();
+    }
+
+    @Test
+    public void testUrlModel() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        Url url = new Url("https://example.com", now);
+
+        url.setId(1L);
+        assertThat(url.getId()).isEqualTo(1L);
+        assertThat(url.getName()).isEqualTo("https://example.com");
+        assertThat(url.getCreatedAt()).isEqualTo(now);
+    }
+
+    @Test
+    public void testUrlCheckModel() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        UrlCheck check = new UrlCheck(1L, 200, "Title", "H1", "Description", now);
+
+        check.setId(1L);
+        assertThat(check.getId()).isEqualTo(1L);
+        assertThat(check.getStatusCode()).isEqualTo(200);
+        assertThat(check.getTitle()).isEqualTo("Title");
     }
 }
