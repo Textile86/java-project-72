@@ -58,7 +58,7 @@ public class AppTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException, SQLException {
+    public final void setUp() throws IOException, SQLException {
         app = App.getApp(TEST_DATABASE_URL);
 
         var hikariConfig = new HikariConfig();
@@ -85,7 +85,7 @@ public class AppTest {
     }
 
     @AfterEach
-    public void tearDown() throws SQLException {
+    public final void tearDown() throws SQLException {
         if (dataSource != null && !dataSource.isClosed()) {
             try (var connection = dataSource.getConnection();
                  var statement = connection.createStatement()) {

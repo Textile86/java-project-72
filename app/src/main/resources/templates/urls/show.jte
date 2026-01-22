@@ -34,7 +34,7 @@ content = @`
             </tr>
             <tr>
                 <td>Дата создания</td>
-                <td>${new SimpleDateFormat("dd/MM/yyyy HH:mm").format(page.getUrl().getCreated_at())}</td>
+                <td>${new SimpleDateFormat("dd/MM/yyyy HH:mm").format(page.getUrl().getCreatedAt())}</td>
             </tr>
             </tbody>
         </table>

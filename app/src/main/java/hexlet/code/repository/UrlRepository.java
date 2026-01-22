@@ -17,7 +17,7 @@ public class UrlRepository extends BaseRepository {
         try (var conn = dataSource.getConnection();
             PreparedStatement preparedStatement = conn.prepareStatement(sql, new String[]{"id"})) {
             preparedStatement.setString(1, url.getName());
-            preparedStatement.setTimestamp(2, url.getCreated_at());
+            preparedStatement.setTimestamp(2, url.getCreatedAt());
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -36,8 +36,8 @@ public class UrlRepository extends BaseRepository {
             var resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 var make = resultSet.getString("name");
-                var created_at = resultSet.getTimestamp("created_at");
-                var url = new Url(make, created_at);
+                var createdAt = resultSet.getTimestamp("created_at");
+                var url = new Url(make, createdAt);
                 url.setId(id);
                 return Optional.of(url);
             }
@@ -54,8 +54,8 @@ public class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var make = resultSet.getString("name");
-                var created_at = resultSet.getTimestamp("created_at");
-                var url = new Url(make, created_at);
+                var createdAt = resultSet.getTimestamp("created_at");
+                var url = new Url(make, createdAt);
                 url.setId(id);
                 result.add(url);
             }
@@ -77,9 +77,9 @@ public class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 Long id = resultSet.getLong("id");
                 String name = resultSet.getString("name");
-                Timestamp created_at = resultSet.getTimestamp("created_at");
+                Timestamp createdAt = resultSet.getTimestamp("created_at");
 
-                Url url = new Url(name, created_at);
+                Url url = new Url(name, createdAt);
                 url.setId(id);
                 urls.add(url);
             }

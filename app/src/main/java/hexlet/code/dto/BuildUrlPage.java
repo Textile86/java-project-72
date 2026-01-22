@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @Getter
 public class BuildUrlPage extends BasePage {
     private String name;
-    private Timestamp created_at;
+    private Timestamp createdAt;
     private Map<String, List<ValidationError<Object>>> errors;
 }
