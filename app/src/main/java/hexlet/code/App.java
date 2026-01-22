@@ -26,11 +26,7 @@ public class App {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
-        hikariConfig.setMaximumPoolSize(2);
-        hikariConfig.setMinimumIdle(1);
-
         var dataSource = new HikariDataSource(hikariConfig);
-        BaseRepository.setDataSource(dataSource);
 
         var url = App.class.getClassLoader().getResourceAsStream("schema.sql");
         var sql = new BufferedReader(new InputStreamReader(url))
@@ -75,7 +71,7 @@ public class App {
     }
 
     private static String getDatabaseUrl() {
-        return "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;";
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
     }
 
     private static TemplateEngine createTemplateEngine() {

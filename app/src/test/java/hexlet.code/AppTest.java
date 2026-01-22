@@ -40,11 +40,8 @@ public class AppTest {
 
     @BeforeEach
     public final void setUp() throws IOException, SQLException {
-        System.setProperty("JDBC_DATABASE_URL", "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;");
-
         app = App.getApp();
         UrlRepository.deleteAll();
-        UrlCheckRepository.deleteAll();
     }
 
     @Test
@@ -123,9 +120,9 @@ public class AppTest {
     public void testNotValidUrl() throws SQLException {
         JavalinTest.test(app, (server, client) -> {
             String[] testUrls = {"abracadabra_123_@dasdasd",
-                "hsppt://example.com",
-                "example.com",
-                ""};
+                    "hsppt://example.com",
+                    "example.com",
+                    ""};
 
             for (int i = 0; i < testUrls.length; i++) {
                 client.post("/urls", "url=" + testUrls[i]);
@@ -143,8 +140,8 @@ public class AppTest {
     public void testNormalization() throws SQLException {
         JavalinTest.test(app, (server, client) -> {
             String[] testUrls = {"https://example.com",
-                "https://EXAMPLE.COM",
-                "https://www.example.com"};
+                    "https://EXAMPLE.COM",
+                    "https://www.example.com"};
 
             for (int i = 0; i < testUrls.length; i++) {
                 client.post("/urls", "url=" + testUrls[i]);
