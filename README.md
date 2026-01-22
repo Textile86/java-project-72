@@ -4,7 +4,8 @@
 [![Java CI with Gradle](https://github.com/Textile86/java-project-72/actions/workflows/ci.yml/badge.svg)](https://github.com/Textile86/java-project-72/actions/workflows/ci.yml)
 
 [![Build Status](https://github.com/Textile86/java-project-72/actions/workflows/build.yml/badge.svg)](https://github.com/Textile86/java-project-72/actions)
-[![codecov](https://codecov.io/gh/Textile86/java-project-72/branch/main/graph/badge.svg)](https://codecov.io/gh/Textile86/java-project-72)
+
+[![codecov](https://codecov.io/gh/Textile86/java-project-72/branch/main/graph/badge.svg?token=C2FAD7610E)](https://codecov.io/gh/Textile86/java-project-72)
 
 ## Описание
 
