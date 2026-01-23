@@ -9,6 +9,7 @@ import hexlet.code.dto.BasePage;
 import hexlet.code.model.NamedRoutes;
 import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
+import io.javalin.http.NotFoundResponse;
 import io.javalin.rendering.template.JavalinJte;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 
-public class App {
+public class    App {
     public static Javalin getApp(String databaseUrl) throws SQLException {
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(databaseUrl);
@@ -41,6 +42,23 @@ public class App {
         var app = Javalin.create(config -> {
             config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
+        });
+
+        app.exception(NotFoundResponse.class, (e, ctx) -> {
+            ctx.status(404);
+            ctx.result("Страница не найдена: " + e.getMessage());
+        });
+
+        app.exception(SQLException.class, (e, ctx) -> {
+            ctx.status(500);
+            ctx.sessionAttribute("flash-error", "Ошибка базы данных: " + e.getMessage());
+            ctx.redirect("/");
+        });
+
+        app.exception(Exception.class, (e, ctx) -> {
+            ctx.status(500);
+            ctx.sessionAttribute("flash-error", "Произошла ошибка: " + e.getMessage());
+            ctx.redirect("/");
         });
 
         app.get("/", ctx -> {

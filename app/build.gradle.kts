@@ -1,7 +1,6 @@
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 
 plugins {
-    java
     id("org.sonarqube") version "7.2.2.6593"
     application
     jacoco

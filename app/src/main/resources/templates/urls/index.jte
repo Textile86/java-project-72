@@ -1,6 +1,6 @@
 @import hexlet.code.dto.UrlsPage
 @import hexlet.code.model.NamedRoutes
-@import java.text.SimpleDateFormat
+@import java.time.format.DateTimeFormatter
 @param UrlsPage page
 
 @template.layout.page(
@@ -53,7 +53,7 @@ content = @`
                         </td>
                         <td>
                             @if(page.getLatestChecks() != null && page.getLatestChecks().get(url.getId()) != null)
-                                ${new SimpleDateFormat("dd/MM/yyyy HH:mm").format(page.getLatestChecks().get(url.getId()).getCreatedAt())}
+                                ${page.getLatestChecks().get(url.getId()).getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}
                             @endif
                         </td>
                         <td>

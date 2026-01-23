@@ -16,13 +16,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -285,10 +284,9 @@ public class AppTest {
 
     @Test
     public void testUrlModel() {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        Url url = new Url("https://example.com", now);
+        LocalDateTime now = LocalDateTime.now();
+        Url url = new Url(1L, "https://example.com", now);
 
-        url.setId(1L);
         assertThat(url.getId()).isEqualTo(1L);
         assertThat(url.getName()).isEqualTo("https://example.com");
         assertThat(url.getCreatedAt()).isEqualTo(now);
@@ -296,8 +294,8 @@ public class AppTest {
 
     @Test
     public void testUrlCheckModel() {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        UrlCheck check = new UrlCheck(1L, 200, "Title", "H1", "Description", now);
+
+        UrlCheck check = new UrlCheck(1L, 200, "Title", "H1", "Description", LocalDateTime.now());
 
         check.setId(1L);
         assertThat(check.getId()).isEqualTo(1L);

@@ -1,6 +1,6 @@
 @import hexlet.code.dto.UrlPage
 @import hexlet.code.model.NamedRoutes
-@import java.text.SimpleDateFormat
+@import java.time.format.DateTimeFormatter
 @param UrlPage page
 
 @template.layout.page(
@@ -34,7 +34,7 @@ content = @`
             </tr>
             <tr>
                 <td>Дата создания</td>
-                <td>${new SimpleDateFormat("dd/MM/yyyy HH:mm").format(page.getUrl().getCreatedAt())}</td>
+                <td>${page.getUrl().getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}</td>
             </tr>
             </tbody>
         </table>
@@ -70,7 +70,7 @@ content = @`
                         <td>${check.getTitle() != null ? check.getTitle() : ""}</td>
                         <td>${check.getH1() != null ? check.getH1() : ""}</td>
                         <td>${check.getDescription() != null ? check.getDescription() : ""}</td>
-                        <td>${new SimpleDateFormat("dd/MM/yyyy HH:mm").format(check.getCreatedAt())}</td>
+                        <td>${check.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}</td>
                     </tr>
                 @endfor
             @endif

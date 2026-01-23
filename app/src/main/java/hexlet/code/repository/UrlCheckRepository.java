@@ -3,9 +3,11 @@ package hexlet.code.repository;
 import hexlet.code.model.UrlCheck;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class UrlCheckRepository extends BaseRepository {
             stmt.setString(3, urlCheck.getTitle());
             stmt.setString(4, urlCheck.getH1());
             stmt.setString(5, urlCheck.getDescription());
-            stmt.setTimestamp(6, urlCheck.getCreatedAt());
+            stmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             stmt.executeUpdate();
             var generatedKeys = stmt.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -46,7 +48,7 @@ public class UrlCheckRepository extends BaseRepository {
                         rs.getString("title"),
                         rs.getString("h1"),
                         rs.getString("description"),
-                        rs.getTimestamp("created_at")
+                        rs.getTimestamp("created_at").toLocalDateTime()
                 );
                 check.setId(rs.getLong("id"));
                 urlChecks.add(check);
@@ -68,7 +70,7 @@ public class UrlCheckRepository extends BaseRepository {
                         rs.getString("title"),
                         rs.getString("h1"),
                         rs.getString("description"),
-                        rs.getTimestamp("created_at")
+                        rs.getTimestamp("created_at").toLocalDateTime()
                 );
                 check.setId(rs.getLong("id"));
                 return Optional.of(check);
