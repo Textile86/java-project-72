@@ -4,6 +4,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import hexlet.code.model.Url;
 import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.BaseRepository;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
@@ -31,8 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AppTest {
     private Javalin app;
     private static MockWebServer mockServer;
-    private Map<String, Object> existingUrl;
-    private Map<String, Object> existingUrlCheck;
+    private Url existingUrl;
+    private UrlCheck existingUrlCheck;
     private HikariDataSource dataSource;
     private static final String TEST_DATABASE_URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;";
 
@@ -63,11 +65,11 @@ public class AppTest {
 
     @BeforeEach
     public final void setUp() throws IOException, SQLException {
-        app = App.getApp(TEST_DATABASE_URL);
-
         var hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(TEST_DATABASE_URL);
         dataSource = new HikariDataSource(hikariConfig);
+
+        BaseRepository.dataSource = dataSource;
 
         var schemaStream = AppTest.class.getClassLoader().getResourceAsStream("schema.sql");
         var sql = new String(schemaStream.readAllBytes())
@@ -79,13 +81,23 @@ public class AppTest {
             statement.execute(sql);
         }
 
-        String url = "https://en.hexlet.io";
+        app = App.getApp(TEST_DATABASE_URL);
 
-        TestUtils.addUrl(dataSource, url);
-        existingUrl = TestUtils.getUrlByName(dataSource, url);
+        String urlName = "https://en.hexlet.io";
+        Url url = new Url(urlName);
+        UrlRepository.save(url);
+        existingUrl = UrlRepository.findByName(urlName).orElseThrow();
 
-        TestUtils.addUrlCheck(dataSource, (long) existingUrl.get("id"));
-        existingUrlCheck = TestUtils.getUrlCheck(dataSource, (long) existingUrl.get("id"));
+        UrlCheck check = new UrlCheck(
+                existingUrl.getId(),
+                200,
+                "en title",
+                "en h1",
+                "en description",
+                LocalDateTime.now()
+        );
+        UrlCheckRepository.save(check);
+        existingUrlCheck = UrlCheckRepository.findLatestByUrlId(existingUrl.getId()).orElseThrow();
     }
 
     @AfterEach
@@ -120,19 +132,19 @@ public class AppTest {
                 var response = client.get("/urls");
                 assertThat(response.code()).isEqualTo(200);
                 assertThat(response.body().string())
-                        .contains(existingUrl.get("name").toString())
-                        .contains(existingUrlCheck.get("status_code").toString());
+                        .contains(existingUrl.getName())
+                        .contains(existingUrlCheck.getStatusCode().toString());
             });
         }
 
         @Test
         void testShow() {
             JavalinTest.test(app, (server, client) -> {
-                var response = client.get("/urls/" + existingUrl.get("id"));
+                var response = client.get("/urls/" + existingUrl.getId());
                 assertThat(response.code()).isEqualTo(200);
                 assertThat(response.body().string())
-                        .contains(existingUrl.get("name").toString())
-                        .contains(existingUrlCheck.get("status_code").toString());
+                        .contains(existingUrl.getName())
+                        .contains(existingUrlCheck.getStatusCode().toString());
             });
         }
 
@@ -150,9 +162,9 @@ public class AppTest {
                 assertThat(response.code()).isEqualTo(200);
                 assertThat(response.body().string()).contains(inputUrl);
 
-                var actualUrl = TestUtils.getUrlByName(dataSource, inputUrl);
-                assertThat(actualUrl).isNotNull();
-                assertThat(actualUrl.get("name").toString()).isEqualTo(inputUrl);
+                var actualUrl = UrlRepository.findByName(inputUrl);
+                assertThat(actualUrl).isPresent();
+                assertThat(actualUrl.get().getName()).isEqualTo(inputUrl);
             });
         }
 
@@ -193,12 +205,13 @@ public class AppTest {
         @Test
         void testFindByName() throws SQLException {
             String testUrl = "https://test.hexlet.io";
-            TestUtils.addUrl(dataSource, testUrl);
+            Url url = new Url(testUrl);
+            UrlRepository.save(url);
 
-            var foundUrl = TestUtils.getUrlByName(dataSource, testUrl);
-            assertThat(foundUrl).isNotNull();
-            assertThat(foundUrl.get("name")).isEqualTo(testUrl);
-            assertThat(foundUrl.get("id")).isNotNull();
+            var foundUrl = UrlRepository.findByName(testUrl);
+            assertThat(foundUrl).isPresent();
+            assertThat(foundUrl.get().getName()).isEqualTo(testUrl);
+            assertThat(foundUrl.get().getId()).isNotNull();
         }
 
         @Test
@@ -232,21 +245,21 @@ public class AppTest {
                 var postResponse = client.post("/urls", requestBody);
                 assertThat(postResponse.code()).isIn(200, 302);
 
-                var actualUrl = TestUtils.getUrlByName(dataSource, url);
-                assertThat(actualUrl).isNotNull();
-                assertThat(actualUrl.get("name").toString()).isEqualTo(url);
+                var actualUrl = UrlRepository.findByName(url);
+                assertThat(actualUrl).isPresent();
+                assertThat(actualUrl.get().getName()).isEqualTo(url);
 
-                var checkResponse = client.post("/urls/" + actualUrl.get("id") + "/checks", "");
+                var checkResponse = client.post("/urls/" + actualUrl.get().getId() + "/checks", "");
                 assertThat(checkResponse.code()).isIn(200, 302);
 
-                var showResponse = client.get("/urls/" + actualUrl.get("id"));
+                var showResponse = client.get("/urls/" + actualUrl.get().getId());
                 assertThat(showResponse.code()).isEqualTo(200);
 
-                var actualCheck = TestUtils.getUrlCheck(dataSource, (long) actualUrl.get("id"));
-                assertThat(actualCheck).isNotNull();
-                assertThat(actualCheck.get("title")).isEqualTo("Test page");
-                assertThat(actualCheck.get("h1")).isEqualTo("Do not expect a miracle, miracles yourself!");
-                assertThat(actualCheck.get("description")).isEqualTo("statements of great people");
+                var actualCheck = UrlCheckRepository.findLatestByUrlId(actualUrl.get().getId());
+                assertThat(actualCheck).isPresent();
+                assertThat(actualCheck.get().getTitle()).isEqualTo("Test page");
+                assertThat(actualCheck.get().getH1()).isEqualTo("Do not expect a miracle, miracles yourself!");
+                assertThat(actualCheck.get().getDescription()).isEqualTo("statements of great people");
             });
         }
 
